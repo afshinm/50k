@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>50K Array, HTML5 Web Worker Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sorting 50K Array with Bubble Sort">
+    <meta name="author" content="Afshin Mehrabani">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+    <!-- CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+
+      /* Sticky footer styles
+      -------------------------------------------------- */
+
+      html,
+      body {
+        height: 100%;
+        /* The html and body elements cannot have any padding or margin. */
+      }
+
+      /* Wrapper for page content to push down footer */
+      #wrap {
+        min-height: 100%;
+        height: auto !important;
+        height: 100%;
+        /* Negative indent footer by it's height */
+        margin: 0 auto -60px;
+      }
+
+      /* Set the fixed height of the footer here */
+      #push,
+      #footer {
+        height: 60px;
+      }
+      #footer {
+        background-color: #f5f5f5;
+      }
+
+      /* Lastly, apply responsive CSS fixes as necessary */
+      @media (max-width: 767px) {
+        #footer {
+          margin-left: -20px;
+          margin-right: -20px;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+
+      /* Custom page CSS
+      -------------------------------------------------- */
+      /* Not required for template or sticky footer method. */
+
+      .container {
+        width: auto;
+        max-width: 680px;
+      }
+      .container .credit {
+        margin: 20px 0;
+      }
+
+    </style>
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+    <!-- Part 1: Wrap all page content here -->
+    <div id="wrap">
+
+<script type="text/javascript">
+
+if (typeof(Worker)==="undefined") {
+  alert("Ops, your browser doesn't support HTML5 Web Worker! Please choose another modern browser and try again.");
+}
+
+function nonWebWorker() {
+    preStart();
+    var a = [];
+
+    for (var i = 50000; i >= 0; i--) {
+        a.push(i);
+    };
+     
+    function bubbleSort(a)
+    {
+        var swapped;
+        do {
+            swapped = false;
+            for (var i=0; i < a.length-1; i++) {
+                if (a[i] > a[i+1]) {
+                    var temp = a[i];
+                    a[i] = a[i+1];
+                    a[i+1] = temp;
+                    swapped = true;
+                }
+            }
+        } while (swapped);
+    }
+
+    var start = new Date().getTime();
+    bubbleSort(a);
+    var end = new Date().getTime();
+    var time = end - start;
+    afterStop(time, false);
+}
+
+function withWebWorker() {
+    preStart();
+    var worker = new Worker("worker.js");
+    worker.onmessage = function(e) {
+      afterStop(e.data, true);
+    };
+
+    worker.postMessage("start");
+}
+
+function preStart() {
+  $("#resultBox").hide(500);
+  $("#withWW").hide();
+  $("#withoutWW").hide()
+  $("#progressbar").show(500);
+}
+
+function afterStop(spentTime, mode) {
+  $("#timespent").html(spentTime + "ms");
+  $("#progressbar").hide(500, function() {
+    mode ? $("#withWW").show() : $("#withoutWW").show();
+    $("#resultBox").show(500);
+  });
+  
+}
+
+</script>
+
+      <!-- Begin page content -->
+      <div class="container">
+        <div class="page-header">
+          <h3>Sorting 50K Array with Bubble Sort</h3>
+        </div>
+        <p class="lead" style="text-align: center;">
+          <button class="btn btn-large" onclick="javascript:nonWebWorker();">Without Web Worker</button>
+          <button class="btn btn-success btn-large" onclick="javascript:withWebWorker();">With Web Worker</button>
+        </p>
+        
+        <div id="progressbar" class="progress progress-striped active hide">
+          <div class="bar" style="width: 100%;"></div>
+        </div>
+
+        <div id="resultBox" class="well well-large hide">
+          <p class="muted">
+            50K Array sorted in:
+          </p>
+          <h1 id="timespent"></h1>
+          <p id="withoutWW" style="font-size: 18px;font-weight: 200;line-height: 24px;color: inherit;margin-top:20px" class="hide">
+            As you can see, without Web Worker, your browser maybe able to sort the 50K Array but you can't work with your browser while sorting and also your browser won't render anything until sorting ends, that's why you can't see the animated progress bar in the page.
+          </p>
+          <p id="withWW" style="font-size: 18px;font-weight: 200;line-height: 24px;color: inherit;margin-top:20px" class="hide">
+            Your browser sorted 50K Array without any crash or lagging, because your browser supports Web Worker. When you do a job with Web Worker, it's just like when you run a program in another thread. Also you can see the animated progress bar while sorting.
+          </p>
+        </div>
+      </div>
+      <div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit pull-left">By <a href="http://afshinm.name/" target="_blank">Afshin Mehrabani</a> / <a href="https://github.com/afshinm/50k" target="_blank">Github</a></p>
+        <div class="pull-right credit">
+          <span><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://afshinm.github.io/50k/" data-text="Sorting 50K Array with Bubble Sort, by @afshinmeh.">Tweet</a></span>
+
+          <div class="g-plusone" data-size="medium"></div>
+
+          <script type="text/javascript">
+            (function() {
+              var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+              po.src = 'https://apis.google.com/js/plusone.js';
+              var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+            })();
+          </script>
+
+        </div>
+      </div>
+    </div>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </body>
+</html>
